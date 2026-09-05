@@ -1,0 +1,241 @@
+{
+  "document_id": "aze_passport_00_fake_3_104",
+  "image_source": "/Users/karunya/Desktop/forensic_layer/dataset/fakes/aze_passport_00_fake_3_104.jpg",
+  "timestamp_utc": "2026-09-05T02:02:28.655785+00:00",
+  "engine_version": "0.1.0",
+  "layers_requested": 4,
+  "layers_completed": 4,
+  "layers_failed": 0,
+  "all_passed": false,
+  "findings": [
+    {
+      "layer_name": "Layer 1: Background Texture Analysis",
+      "passed": false,
+      "score": 1.0,
+      "distance": 8.28e-05,
+      "threshold": 4e-05,
+      "verdict": "ANOMALOUS_TEXTURE",
+      "finding_type": "background_texture_anomaly",
+      "severity": "high",
+      "confidence": 1.0,
+      "explanation": "Background texture Wasserstein distance (8.28e-05) exceeds calibrated genuine threshold (4e-05) \u2014 indicates non-matching security pattern.",
+      "raw_metric": {
+        "distance": 8.28e-05,
+        "threshold": 4e-05,
+        "verdict": "ANOMALOUS_TEXTURE"
+      },
+      "_engine_meta": {
+        "elapsed_ms": 7.71,
+        "status": "ok"
+      }
+    },
+    {
+      "layer_name": "Layer 2: Photo Boundary Analysis",
+      "region": {
+        "bbox": null,
+        "description": "Portrait photo boundary and surrounding seam area"
+      },
+      "finding_type": "processing_error",
+      "score": 1.0,
+      "confidence": 0.0,
+      "severity": "high",
+      "passed": false,
+      "raw_metric": {
+        "long_straight_line_count": 0,
+        "total_lines_detected": 0,
+        "threshold": 7.5
+      },
+      "explanation": "Could not locate photo region for boundary analysis.",
+      "_engine_meta": {
+        "elapsed_ms": 13.38,
+        "status": "ok"
+      }
+    },
+    {
+      "layer_name": "Layer 3: Color Consistency Analysis",
+      "finding_type": "color_consistency_anomaly",
+      "score": 1.0,
+      "confidence": 1.0,
+      "severity": "high",
+      "passed": false,
+      "raw_metric": {
+        "mahalanobis_distance": 50.2637,
+        "threshold": 3.2748,
+        "color_signature": [
+          213.6522,
+          120.197,
+          133.375,
+          47.8916,
+          6.3208,
+          6.6273
+        ]
+      },
+      "explanation": "Color signature Mahalanobis distance is 50.26 (threshold 3.27) \u2014 deviates significantly from genuine baseline.",
+      "_engine_meta": {
+        "elapsed_ms": 18.59,
+        "status": "ok"
+      }
+    },
+    {
+      "layer_name": "Layer 4: Error Level Analysis (ELA)",
+      "finding_type": "compression_artifact_anomaly",
+      "score": 1.0,
+      "confidence": 1.0,
+      "severity": "high",
+      "passed": false,
+      "raw_metric": {
+        "mean_error": 0.6632,
+        "std_error": 0.9013,
+        "max_error": 15,
+        "p95_error": 2.0,
+        "high_error_pct": 0.0055,
+        "threshold_min": 1.311,
+        "threshold_max": 1.4218
+      },
+      "explanation": "Error Level Analysis error (0.663) is unnaturally low compared to genuine baseline ([1.31 - 1.42]) \u2014 indicates digital resaving/synthetic generation.",
+      "_engine_meta": {
+        "elapsed_ms": 53.91,
+        "status": "ok"
+      }
+    }
+  ],
+  "flagged_findings": [
+    {
+      "layer_name": "Layer 1: Background Texture Analysis",
+      "passed": false,
+      "score": 1.0,
+      "distance": 8.28e-05,
+      "threshold": 4e-05,
+      "verdict": "ANOMALOUS_TEXTURE",
+      "finding_type": "background_texture_anomaly",
+      "severity": "high",
+      "confidence": 1.0,
+      "explanation": "Background texture Wasserstein distance (8.28e-05) exceeds calibrated genuine threshold (4e-05) \u2014 indicates non-matching security pattern.",
+      "raw_metric": {
+        "distance": 8.28e-05,
+        "threshold": 4e-05,
+        "verdict": "ANOMALOUS_TEXTURE"
+      }
+    },
+    {
+      "layer_name": "Layer 2: Photo Boundary Analysis",
+      "region": {
+        "bbox": null,
+        "description": "Portrait photo boundary and surrounding seam area"
+      },
+      "finding_type": "processing_error",
+      "score": 1.0,
+      "confidence": 0.0,
+      "severity": "high",
+      "passed": false,
+      "raw_metric": {
+        "long_straight_line_count": 0,
+        "total_lines_detected": 0,
+        "threshold": 7.5
+      },
+      "explanation": "Could not locate photo region for boundary analysis."
+    },
+    {
+      "layer_name": "Layer 3: Color Consistency Analysis",
+      "finding_type": "color_consistency_anomaly",
+      "score": 1.0,
+      "confidence": 1.0,
+      "severity": "high",
+      "passed": false,
+      "raw_metric": {
+        "mahalanobis_distance": 50.2637,
+        "threshold": 3.2748,
+        "color_signature": [
+          213.6522,
+          120.197,
+          133.375,
+          47.8916,
+          6.3208,
+          6.6273
+        ]
+      },
+      "explanation": "Color signature Mahalanobis distance is 50.26 (threshold 3.27) \u2014 deviates significantly from genuine baseline."
+    },
+    {
+      "layer_name": "Layer 4: Error Level Analysis (ELA)",
+      "finding_type": "compression_artifact_anomaly",
+      "score": 1.0,
+      "confidence": 1.0,
+      "severity": "high",
+      "passed": false,
+      "raw_metric": {
+        "mean_error": 0.6632,
+        "std_error": 0.9013,
+        "max_error": 15,
+        "p95_error": 2.0,
+        "high_error_pct": 0.0055,
+        "threshold_min": 1.311,
+        "threshold_max": 1.4218
+      },
+      "explanation": "Error Level Analysis error (0.663) is unnaturally low compared to genuine baseline ([1.31 - 1.42]) \u2014 indicates digital resaving/synthetic generation."
+    }
+  ],
+  "anomaly_summary": [
+    {
+      "layer": "Layer 1: Background Texture Analysis",
+      "severity": "high",
+      "score": 1.0,
+      "confidence": 1.0,
+      "explanation": "Background texture Wasserstein distance (8.28e-05) exceeds calibrated genuine threshold (4e-05) \u2014 indicates non-matching security pattern.",
+      "raw_metric": {
+        "distance": 8.28e-05,
+        "threshold": 4e-05,
+        "verdict": "ANOMALOUS_TEXTURE"
+      }
+    },
+    {
+      "layer": "Layer 2: Photo Boundary Analysis",
+      "severity": "high",
+      "score": 1.0,
+      "confidence": 0.0,
+      "explanation": "Could not locate photo region for boundary analysis.",
+      "raw_metric": {
+        "long_straight_line_count": 0,
+        "total_lines_detected": 0,
+        "threshold": 7.5
+      }
+    },
+    {
+      "layer": "Layer 3: Color Consistency Analysis",
+      "severity": "high",
+      "score": 1.0,
+      "confidence": 1.0,
+      "explanation": "Color signature Mahalanobis distance is 50.26 (threshold 3.27) \u2014 deviates significantly from genuine baseline.",
+      "raw_metric": {
+        "mahalanobis_distance": 50.2637,
+        "threshold": 3.2748,
+        "color_signature": [
+          213.6522,
+          120.197,
+          133.375,
+          47.8916,
+          6.3208,
+          6.6273
+        ]
+      }
+    },
+    {
+      "layer": "Layer 4: Error Level Analysis (ELA)",
+      "severity": "high",
+      "score": 1.0,
+      "confidence": 1.0,
+      "explanation": "Error Level Analysis error (0.663) is unnaturally low compared to genuine baseline ([1.31 - 1.42]) \u2014 indicates digital resaving/synthetic generation.",
+      "raw_metric": {
+        "mean_error": 0.6632,
+        "std_error": 0.9013,
+        "max_error": 15,
+        "p95_error": 2.0,
+        "high_error_pct": 0.0055,
+        "threshold_min": 1.311,
+        "threshold_max": 1.4218
+      }
+    }
+  ],
+  "errors": [],
+  "elapsed_seconds": 0.0936
+}
