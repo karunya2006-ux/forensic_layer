@@ -1,3 +1,12 @@
+"""
+Layer 4: Error Level Analysis (ELA) Signal Module
+=================================================
+Forensic detection of digital resaving and compression anomalies.
+Resaves the input image at a specified JPEG quality and computes the
+distribution of pixel-level differences against a genuine baseline
+compression error band [threshold_min, threshold_max].
+"""
+
 import os
 import json
 import logging
@@ -7,6 +16,10 @@ import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+
+# ---------- SHARED UTILITIES ----------
+from utils.file_grouping import get_image_files, save_embedding
+from utils.photo_localization import locate_photo_region
 
 # ---------- PATH CONFIG ----------
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -20,25 +33,6 @@ SAMPLE_MAP_PATH = RESULTS_DIR / 'layer4_sample_ela_map.jpg'
 
 logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
 logger = logging.getLogger("ela")
-
-# Try to import locate_photo_region for localized photo vs background ELA check
-try:
-    from signals.photo_boundary import locate_photo_region
-except ImportError:
-    try:
-        from photo_boundary import locate_photo_region
-    except ImportError:
-        locate_photo_region = None
-
-
-# ---------- HELPER FUNCTIONS ----------
-def get_image_files(directory):
-    if not os.path.exists(directory):
-        return []
-    return sorted([
-        f for f in os.listdir(directory)
-        if f.lower().endswith(('.jpg', '.jpeg', '.png'))
-    ])
 
 
 # ---------- CORE ELA COMPUTATION ----------
@@ -114,17 +108,6 @@ def measure_ela(image: np.ndarray, quality: int = 90) -> dict:
             result["photo_doc_ratio"] = round(ratio, 4)
 
     return result
-
-
-# ---------- EMBEDDING STORAGE ----------
-def save_embedding(document_id: str, ela_result: dict):
-    """
-    Saves the measurement dict as JSON to results/embeddings/{document_id}_layer4_ela.json.
-    """
-    os.makedirs(EMBEDDINGS_DIR, exist_ok=True)
-    out_path = EMBEDDINGS_DIR / f"{document_id}_layer4_ela.json"
-    with open(out_path, "w") as f:
-        json.dump(ela_result, f, indent=4)
 
 
 # ---------- CALIBRATION & TRAINING ----------
@@ -353,7 +336,7 @@ def evaluate_ela(image_input, threshold_bounds: tuple = None) -> dict:
     if "photo_doc_ratio" in measurement:
         embedding_data["photo_doc_ratio"] = measurement["photo_doc_ratio"]
 
-    save_embedding(document_id, embedding_data)
+    save_embedding(document_id, embedding_data, layer_slug="layer4_ela")
 
     return {
         "layer_name": "Layer 4: Error Level Analysis (ELA)",
@@ -377,11 +360,14 @@ def evaluate_ela(image_input, threshold_bounds: tuple = None) -> dict:
 
 # ---------- MAIN PIPELINE ----------
 if __name__ == '__main__':
-    print("=" * 60)
+    print("=" * 50)
     print("CALIBRATING AND TESTING LAYER 4 (ERROR LEVEL ANALYSIS)")
-    print("=" * 60)
+    print("=" * 50)
 
     meta = calibrate_ela()
+
+    print("\nCalibrated Metadata:")
+    print(json.dumps(meta, indent=2))
 
     real_files = get_image_files(REALS_DIR)
     fake_files = get_image_files(FAKES_DIR)
@@ -402,7 +388,4 @@ if __name__ == '__main__':
         print(json.dumps(finding_fake, indent=4))
         print(f"Embedding saved: results/embeddings/{doc_id_fake}_layer4_ela.json")
 
-    print("\n" + "=" * 50)
-    print("CALIBRATED METADATA JSON")
     print("=" * 50)
-    print(json.dumps(meta, indent=4))

@@ -1,7 +1,7 @@
 {
   "document_id": "aze_passport_00_fake_3_104",
   "image_source": "/Users/karunya/Desktop/forensic_layer/dataset/fakes/aze_passport_00_fake_3_104.jpg",
-  "timestamp_utc": "2026-09-05T02:02:28.655785+00:00",
+  "timestamp_utc": "2026-09-05T14:57:04.779416+00:00",
   "engine_version": "0.1.0",
   "layers_requested": 4,
   "layers_completed": 4,
@@ -9,32 +9,32 @@
   "all_passed": false,
   "findings": [
     {
-      "layer_name": "Layer 1: Background Texture Analysis",
-      "passed": false,
+      "layer_name": "Layer 1: Background Intensity, Micro-Texture & Structural Consistency",
+      "finding_type": "background_consistency_anomaly",
       "score": 1.0,
-      "distance": 8.28e-05,
-      "threshold": 4e-05,
-      "verdict": "ANOMALOUS_TEXTURE",
-      "finding_type": "background_texture_anomaly",
-      "severity": "high",
       "confidence": 1.0,
-      "explanation": "Background texture Wasserstein distance (8.28e-05) exceeds calibrated genuine threshold (4e-05) \u2014 indicates non-matching security pattern.",
+      "severity": "high",
+      "passed": false,
       "raw_metric": {
-        "distance": 8.28e-05,
-        "threshold": 4e-05,
-        "verdict": "ANOMALOUS_TEXTURE"
+        "status": "ok",
+        "verdict": "ANOMALOUS_BACKGROUND",
+        "distance": 0.989999,
+        "threshold": 0.45,
+        "d_intensity": 0.989999,
+        "d_lbp": 0.026511,
+        "d_grad": 0.1236,
+        "threshold_intensity": 0.45,
+        "threshold_lbp": 0.1,
+        "threshold_grad": 1.5
       },
+      "explanation": "Background pattern anomalies detected: intensity distribution mismatch (Wasserstein 0.9900 > 0.4500).",
       "_engine_meta": {
-        "elapsed_ms": 7.71,
+        "elapsed_ms": 10.85,
         "status": "ok"
       }
     },
     {
       "layer_name": "Layer 2: Photo Boundary Analysis",
-      "region": {
-        "bbox": null,
-        "description": "Portrait photo boundary and surrounding seam area"
-      },
       "finding_type": "processing_error",
       "score": 1.0,
       "confidence": 0.0,
@@ -43,11 +43,15 @@
       "raw_metric": {
         "long_straight_line_count": 0,
         "total_lines_detected": 0,
-        "threshold": 7.5
+        "threshold": 7.5,
+        "region": {
+          "bbox": null,
+          "description": "Portrait photo boundary and surrounding seam area"
+        }
       },
       "explanation": "Could not locate photo region for boundary analysis.",
       "_engine_meta": {
-        "elapsed_ms": 13.38,
+        "elapsed_ms": 13.39,
         "status": "ok"
       }
     },
@@ -72,7 +76,7 @@
       },
       "explanation": "Color signature Mahalanobis distance is 50.26 (threshold 3.27) \u2014 deviates significantly from genuine baseline.",
       "_engine_meta": {
-        "elapsed_ms": 18.59,
+        "elapsed_ms": 19.14,
         "status": "ok"
       }
     },
@@ -94,35 +98,35 @@
       },
       "explanation": "Error Level Analysis error (0.663) is unnaturally low compared to genuine baseline ([1.31 - 1.42]) \u2014 indicates digital resaving/synthetic generation.",
       "_engine_meta": {
-        "elapsed_ms": 53.91,
+        "elapsed_ms": 55.6,
         "status": "ok"
       }
     }
   ],
   "flagged_findings": [
     {
-      "layer_name": "Layer 1: Background Texture Analysis",
-      "passed": false,
+      "layer_name": "Layer 1: Background Intensity, Micro-Texture & Structural Consistency",
+      "finding_type": "background_consistency_anomaly",
       "score": 1.0,
-      "distance": 8.28e-05,
-      "threshold": 4e-05,
-      "verdict": "ANOMALOUS_TEXTURE",
-      "finding_type": "background_texture_anomaly",
-      "severity": "high",
       "confidence": 1.0,
-      "explanation": "Background texture Wasserstein distance (8.28e-05) exceeds calibrated genuine threshold (4e-05) \u2014 indicates non-matching security pattern.",
+      "severity": "high",
+      "passed": false,
       "raw_metric": {
-        "distance": 8.28e-05,
-        "threshold": 4e-05,
-        "verdict": "ANOMALOUS_TEXTURE"
-      }
+        "status": "ok",
+        "verdict": "ANOMALOUS_BACKGROUND",
+        "distance": 0.989999,
+        "threshold": 0.45,
+        "d_intensity": 0.989999,
+        "d_lbp": 0.026511,
+        "d_grad": 0.1236,
+        "threshold_intensity": 0.45,
+        "threshold_lbp": 0.1,
+        "threshold_grad": 1.5
+      },
+      "explanation": "Background pattern anomalies detected: intensity distribution mismatch (Wasserstein 0.9900 > 0.4500)."
     },
     {
       "layer_name": "Layer 2: Photo Boundary Analysis",
-      "region": {
-        "bbox": null,
-        "description": "Portrait photo boundary and surrounding seam area"
-      },
       "finding_type": "processing_error",
       "score": 1.0,
       "confidence": 0.0,
@@ -131,7 +135,11 @@
       "raw_metric": {
         "long_straight_line_count": 0,
         "total_lines_detected": 0,
-        "threshold": 7.5
+        "threshold": 7.5,
+        "region": {
+          "bbox": null,
+          "description": "Portrait photo boundary and surrounding seam area"
+        }
       },
       "explanation": "Could not locate photo region for boundary analysis."
     },
@@ -177,15 +185,22 @@
   ],
   "anomaly_summary": [
     {
-      "layer": "Layer 1: Background Texture Analysis",
+      "layer": "Layer 1: Background Intensity, Micro-Texture & Structural Consistency",
       "severity": "high",
       "score": 1.0,
       "confidence": 1.0,
-      "explanation": "Background texture Wasserstein distance (8.28e-05) exceeds calibrated genuine threshold (4e-05) \u2014 indicates non-matching security pattern.",
+      "explanation": "Background pattern anomalies detected: intensity distribution mismatch (Wasserstein 0.9900 > 0.4500).",
       "raw_metric": {
-        "distance": 8.28e-05,
-        "threshold": 4e-05,
-        "verdict": "ANOMALOUS_TEXTURE"
+        "status": "ok",
+        "verdict": "ANOMALOUS_BACKGROUND",
+        "distance": 0.989999,
+        "threshold": 0.45,
+        "d_intensity": 0.989999,
+        "d_lbp": 0.026511,
+        "d_grad": 0.1236,
+        "threshold_intensity": 0.45,
+        "threshold_lbp": 0.1,
+        "threshold_grad": 1.5
       }
     },
     {
@@ -197,7 +212,11 @@
       "raw_metric": {
         "long_straight_line_count": 0,
         "total_lines_detected": 0,
-        "threshold": 7.5
+        "threshold": 7.5,
+        "region": {
+          "bbox": null,
+          "description": "Portrait photo boundary and surrounding seam area"
+        }
       }
     },
     {
@@ -237,5 +256,5 @@
     }
   ],
   "errors": [],
-  "elapsed_seconds": 0.0936
+  "elapsed_seconds": 0.099
 }

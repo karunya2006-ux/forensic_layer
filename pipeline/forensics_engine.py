@@ -49,10 +49,10 @@ EVIDENCE_DIR  = RESULTS_DIR / "evidence"
 # Each entry: (human_name, callable, kwargs)
 # ---------------------------------------------------------------------------
 LAYER_REGISTRY = [
-    ("Layer 1: Background Texture",   evaluate_background_texture,  {}),
-    ("Layer 2: Photo Boundary",       evaluate_photo_boundary,      {}),
-    ("Layer 3: Color Consistency",    evaluate_color_consistency,    {}),
-    ("Layer 4: Error Level Analysis", evaluate_ela,                  {}),
+    ("Layer 1: Background Consistency", evaluate_background_texture,  {}),
+    ("Layer 2: Photo Boundary",          evaluate_photo_boundary,      {}),
+    ("Layer 3: Color Consistency",       evaluate_color_consistency,    {}),
+    ("Layer 4: Error Level Analysis",    evaluate_ela,                  {}),
 ]
 
 
@@ -114,27 +114,18 @@ def run_forensics(image_input, document_id: str = None, save: bool = True) -> di
         try:
             result = evaluate_fn(image_input, **kwargs)
 
-            # Standardize / normalize missing optional keys for downstream compatibility
+            # Ensure standard schema keys are present for downstream safety
             if "finding_type" not in result:
-                result["finding_type"] = "background_texture_anomaly" if not result.get("passed", True) else "normal"
+                result["finding_type"] = "normal" if result.get("passed", True) else "anomaly"
             if "severity" not in result:
                 score_val = result.get("score", 0.0)
                 result["severity"] = "low" if score_val < 0.3 else ("medium" if score_val < 0.7 else "high")
             if "confidence" not in result:
-                dist = result.get("distance", 0.0)
-                thresh = result.get("threshold", 1.0)
-                result["confidence"] = round(min(1.0, abs(dist - thresh) / (thresh + 1e-9)), 4)
+                result["confidence"] = 0.5
             if "explanation" not in result:
-                if result.get("passed", True):
-                    result["explanation"] = f"Background texture Wasserstein distance ({result.get('distance')}) is within calibrated genuine threshold ({result.get('threshold')})."
-                else:
-                    result["explanation"] = f"Background texture Wasserstein distance ({result.get('distance')}) exceeds calibrated genuine threshold ({result.get('threshold')}) — indicates non-matching security pattern."
+                result["explanation"] = f"{layer_name} evaluation completed."
             if "raw_metric" not in result:
-                result["raw_metric"] = {
-                    "distance": result.get("distance"),
-                    "threshold": result.get("threshold"),
-                    "verdict": result.get("verdict")
-                }
+                result["raw_metric"] = {}
 
             result["_engine_meta"] = {
                 "elapsed_ms": round((time.perf_counter() - layer_start) * 1000, 2),

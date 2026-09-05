@@ -1,9 +1,21 @@
+"""
+Layer 3: Color Consistency Analysis Signal Module
+=================================================
+Forensic statistical evaluation of document color distribution.
+Extracts 6D LAB color signatures (mean & std across L, A, B channels)
+and measures Mahalanobis distance from the genuine document centroid
+using regularized covariance matrix inversion.
+"""
+
 import os
 import json
 import logging
 from pathlib import Path
 import cv2
 import numpy as np
+
+# ---------- SHARED UTILITIES ----------
+from utils.file_grouping import get_image_files, save_embedding
 
 # ---------- PATH CONFIG ----------
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -15,16 +27,6 @@ BASELINE_PATH = RESULTS_DIR / 'layer3_color_baseline.json'
 
 logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
 logger = logging.getLogger("color_consistency")
-
-
-# ---------- HELPER FUNCTIONS ----------
-def get_image_files(directory):
-    if not os.path.exists(directory):
-        return []
-    return sorted([
-        f for f in os.listdir(directory)
-        if f.lower().endswith(('.jpg', '.jpeg', '.png'))
-    ])
 
 
 # ---------- CORE COLOR MEASUREMENT ----------
@@ -61,17 +63,6 @@ def mahalanobis_distance(vec: np.ndarray, mean_vec: np.ndarray, cov_inv: np.ndar
     diff = np.array(vec, dtype=np.float64) - np.array(mean_vec, dtype=np.float64)
     dist_sq = float(np.dot(np.dot(diff, cov_inv), diff.T))
     return float(np.sqrt(max(0.0, dist_sq)))
-
-
-# ---------- EMBEDDING STORAGE ----------
-def save_embedding(document_id: str, color_result: dict):
-    """
-    Saves the measurement dict as JSON to results/embeddings/{document_id}_layer3_color_consistency.json.
-    """
-    os.makedirs(EMBEDDINGS_DIR, exist_ok=True)
-    out_path = EMBEDDINGS_DIR / f"{document_id}_layer3_color_consistency.json"
-    with open(out_path, "w") as f:
-        json.dump(color_result, f, indent=4)
 
 
 # ---------- CALIBRATION & TRAINING ----------
@@ -210,7 +201,7 @@ def evaluate_color_consistency(image_input, baseline: dict = None) -> dict:
         "threshold": round(threshold, 4),
         "color_signature": [round(float(x), 4) for x in sig]
     }
-    save_embedding(document_id, embedding_data)
+    save_embedding(document_id, embedding_data, layer_slug="layer3_color_consistency")
 
     return {
         "layer_name": "Layer 3: Color Consistency Analysis",
@@ -230,9 +221,9 @@ def evaluate_color_consistency(image_input, baseline: dict = None) -> dict:
 
 # ---------- MAIN DIAGNOSTIC PIPELINE ----------
 if __name__ == '__main__':
-    print("=" * 60)
+    print("=" * 50)
     print("CALIBRATING AND TESTING LAYER 3 (COLOR CONSISTENCY)")
-    print("=" * 60)
+    print("=" * 50)
 
     # 1. Build genuine baseline
     baseline = build_genuine_baseline()
@@ -303,3 +294,5 @@ if __name__ == '__main__':
         print(f"\nFake Sample Finding ({doc_id_fake}):")
         print(json.dumps(finding_fake, indent=4))
         print(f"Embedding saved: results/embeddings/{doc_id_fake}_layer3_color_consistency.json")
+
+    print("=" * 50)

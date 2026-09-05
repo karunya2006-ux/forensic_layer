@@ -1,3 +1,12 @@
+"""
+Layer 2: Photo Boundary & Seam Straightness Analysis Signal Module
+==================================================================
+Forensic detection of digital photo splicing and perimeter paste lines.
+Analyzes the bounding boundary around localized portrait photographs for
+abnormally long, straight edge segments using Canny edge detection and
+probabilistic Hough transform lines.
+"""
+
 import os
 import json
 import logging
@@ -7,6 +16,13 @@ import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+
+# ---------- SHARED UTILITIES ----------
+from utils.file_grouping import get_image_files, save_embedding
+from utils.photo_localization import locate_photo_region
+
+# Re-export for backward compatibility
+__all__ = ["locate_photo_region", "evaluate_photo_boundary", "calibrate_layer2"]
 
 # ---------- PATH CONFIG ----------
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -20,54 +36,6 @@ VISUALIZATION_PATH = RESULTS_DIR / 'layer2_boundary_visualization.jpg'
 
 logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
 logger = logging.getLogger("photo_boundary")
-
-
-# ---------- HELPER & LOCALIZATION FUNCTIONS ----------
-def get_image_files(directory):
-    if not os.path.exists(directory):
-        return []
-    return sorted([
-        f for f in os.listdir(directory)
-        if f.lower().endswith(('.jpg', '.jpeg', '.png'))
-    ])
-
-
-def locate_photo_region(image: np.ndarray) -> tuple | None:
-    """
-    Locates the portrait photo bounding box in a passport image.
-    Uses Canny edge detection, dilation, and external contour filtering by area & aspect ratio.
-    Returns (x, y, w, h) or None if no candidate matches.
-    """
-    if image is None or image.size == 0:
-        return None
-
-    img_h, img_w = image.shape[:2]
-    img_area = img_h * img_w
-    if img_area == 0:
-        return None
-
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) if len(image.shape) == 3 else image
-    edges = cv2.Canny(gray, 50, 150)
-    kernel = np.ones((3, 3), np.uint8)
-    dilated = cv2.dilate(edges, kernel, iterations=1)
-
-    contours, _ = cv2.findContours(dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-    best_bbox = None
-    max_area_ratio = 0.0
-
-    for cnt in contours:
-        contour_area = cv2.contourArea(cnt)
-        area_ratio = contour_area / img_area
-        x, y, w, h = cv2.boundingRect(cnt)
-        aspect_ratio = w / float(h) if h > 0 else 0.0
-
-        if 0.03 <= area_ratio <= 0.15 and 0.5 <= aspect_ratio <= 1.0:
-            if area_ratio > max_area_ratio:
-                max_area_ratio = area_ratio
-                best_bbox = (x, y, w, h)
-
-    return best_bbox
 
 
 # ---------- CORE BOUNDARY MEASUREMENT ----------
@@ -123,23 +91,6 @@ def measure_boundary_straightness(image: np.ndarray, photo_bbox: tuple, padding:
         "total_lines_detected": total_lines_detected,
         "lines": long_straight_lines
     }
-
-
-# ---------- EMBEDDING STORAGE ----------
-def save_embedding(document_id: str, boundary_result: dict):
-    """
-    Saves the raw measurement dict as JSON to results/embeddings/{document_id}_layer2_photo_boundary.json.
-    """
-    os.makedirs(EMBEDDINGS_DIR, exist_ok=True)
-    out_path = EMBEDDINGS_DIR / f"{document_id}_layer2_photo_boundary.json"
-    clean_data = {
-        "document_id": document_id,
-        "long_straight_line_count": boundary_result.get("long_straight_line_count", 0),
-        "total_lines_detected": boundary_result.get("total_lines_detected", 0),
-        "lines": boundary_result.get("lines", [])
-    }
-    with open(out_path, "w") as f:
-        json.dump(clean_data, f, indent=4)
 
 
 # ---------- CALIBRATION & TRAINING ----------
@@ -287,10 +238,6 @@ def evaluate_photo_boundary(image_input, threshold: float = None) -> dict:
         if img is None:
             return {
                 "layer_name": "Layer 2: Photo Boundary Analysis",
-                "region": {
-                    "bbox": None,
-                    "description": "Portrait photo boundary and surrounding seam area"
-                },
                 "finding_type": "processing_error",
                 "score": 1.0,
                 "confidence": 0.0,
@@ -299,7 +246,11 @@ def evaluate_photo_boundary(image_input, threshold: float = None) -> dict:
                 "raw_metric": {
                     "long_straight_line_count": 0,
                     "total_lines_detected": 0,
-                    "threshold": threshold
+                    "threshold": threshold,
+                    "region": {
+                        "bbox": None,
+                        "description": "Portrait photo boundary and surrounding seam area"
+                    }
                 },
                 "explanation": f"Could not read image from {image_input}."
             }
@@ -308,10 +259,6 @@ def evaluate_photo_boundary(image_input, threshold: float = None) -> dict:
     else:
         return {
             "layer_name": "Layer 2: Photo Boundary Analysis",
-            "region": {
-                "bbox": None,
-                "description": "Portrait photo boundary and surrounding seam area"
-            },
             "finding_type": "processing_error",
             "score": 1.0,
             "confidence": 0.0,
@@ -320,7 +267,11 @@ def evaluate_photo_boundary(image_input, threshold: float = None) -> dict:
             "raw_metric": {
                 "long_straight_line_count": 0,
                 "total_lines_detected": 0,
-                "threshold": threshold
+                "threshold": threshold,
+                "region": {
+                    "bbox": None,
+                    "description": "Portrait photo boundary and surrounding seam area"
+                }
             },
             "explanation": "Invalid input type. Expected file path or numpy image."
         }
@@ -330,10 +281,6 @@ def evaluate_photo_boundary(image_input, threshold: float = None) -> dict:
     if photo_bbox is None:
         return {
             "layer_name": "Layer 2: Photo Boundary Analysis",
-            "region": {
-                "bbox": None,
-                "description": "Portrait photo boundary and surrounding seam area"
-            },
             "finding_type": "processing_error",
             "score": 1.0,
             "confidence": 0.0,
@@ -342,7 +289,11 @@ def evaluate_photo_boundary(image_input, threshold: float = None) -> dict:
             "raw_metric": {
                 "long_straight_line_count": 0,
                 "total_lines_detected": 0,
-                "threshold": threshold
+                "threshold": threshold,
+                "region": {
+                    "bbox": None,
+                    "description": "Portrait photo boundary and surrounding seam area"
+                }
             },
             "explanation": "Could not locate photo region for boundary analysis."
         }
@@ -352,7 +303,13 @@ def evaluate_photo_boundary(image_input, threshold: float = None) -> dict:
     line_count = measurement["long_straight_line_count"]
 
     # 5. Save embedding
-    save_embedding(document_id, measurement)
+    clean_embedding = {
+        "document_id": document_id,
+        "long_straight_line_count": line_count,
+        "total_lines_detected": measurement.get("total_lines_detected", 0),
+        "lines": measurement.get("lines", [])
+    }
+    save_embedding(document_id, clean_embedding, layer_slug="layer2_photo_boundary")
 
     # 6. Scoring & Metrics
     score = min(line_count / (threshold * 2.0), 1.0) if threshold > 0 else 1.0
@@ -368,10 +325,6 @@ def evaluate_photo_boundary(image_input, threshold: float = None) -> dict:
 
     return {
         "layer_name": "Layer 2: Photo Boundary Analysis",
-        "region": {
-            "bbox": list(photo_bbox),
-            "description": "Portrait photo boundary and surrounding seam area"
-        },
         "finding_type": "photo_boundary_anomaly",
         "score": round(float(score), 4),
         "confidence": round(float(confidence), 4),
@@ -380,7 +333,11 @@ def evaluate_photo_boundary(image_input, threshold: float = None) -> dict:
         "raw_metric": {
             "long_straight_line_count": int(line_count),
             "total_lines_detected": int(measurement["total_lines_detected"]),
-            "threshold": float(threshold)
+            "threshold": float(threshold),
+            "region": {
+                "bbox": list(photo_bbox),
+                "description": "Portrait photo boundary and surrounding seam area"
+            }
         },
         "explanation": explanation
     }
@@ -411,11 +368,14 @@ def save_boundary_visualization(image_path: str, output_path: str = str(VISUALIZ
 
 # ---------- MAIN PIPELINE ----------
 if __name__ == '__main__':
-    print("=" * 60)
+    print("=" * 50)
     print("CALIBRATING AND TESTING LAYER 2 (PHOTO BOUNDARY)")
-    print("=" * 60)
+    print("=" * 50)
 
     thresh, meta = calibrate_layer2()
+
+    print("\nCalibrated Metadata:")
+    print(json.dumps(meta, indent=2))
 
     real_files = get_image_files(REALS_DIR)
     fake_files = get_image_files(FAKES_DIR)
@@ -448,7 +408,4 @@ if __name__ == '__main__':
         print(json.dumps(finding_fake, indent=4))
         print(f"Embedding saved: results/embeddings/{doc_id_fake}_layer2_photo_boundary.json")
 
-    print("\n" + "=" * 50)
-    print("UPDATED METADATA JSON")
     print("=" * 50)
-    print(json.dumps(meta, indent=4))
